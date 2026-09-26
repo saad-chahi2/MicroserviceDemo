@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customerservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customerservice
+  template:
+    metadata:
+      namespace: microservices-app
+      labels:
+        app: customerservice
+    spec:
+      containers:
+        - name: customerservice
+          image: saadchahi/customerservice:v1   
+          ports:
+            - containerPort: 5002       
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              value: "Server=sqlserverdb;Database=MicroservicesDemo;User Id=sa;Password=sa@123456;TrustServerCertificate=True;"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customerservice
+  namespace: microservices-app
+spec:
+  selector:
+    app: customerservice
+  ports:
+    - port: 5002
+      targetPort: 5002
+  type: LoadBalancer
