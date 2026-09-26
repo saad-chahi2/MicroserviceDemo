@@ -1,7 +1,9 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
+    <File Path="deploy-all.ps1" />
     <File Path="docker-compose.yml" />
+    <File Path="sqlserver-deployment.yaml" />
   </Folder>
   <Project Path="CustomerService/CustomerService.csproj" />
   <Project Path="OrderService/OrderService.csproj" />
