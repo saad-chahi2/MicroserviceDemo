@@ -1,0 +1,20 @@
+@host = http://localhost:5002
+
+### Liste des clients
+GET {{host}}/api/customers
+Accept: application/json
+
+### Créer un client
+POST {{host}}/api/customers
+Content-Type: application/json
+
+{
+  "name": "Saad",
+  "email": "saad@example.com"
+}
+
+### Client par id
+GET {{host}}/api/customers/1
+
+### Santé (readiness)
+GET {{host}}/health/ready

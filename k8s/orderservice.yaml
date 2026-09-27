@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderservice
+  template:
+    metadata:
+      namespace: microservices-app
+      labels:
+        app: orderservice
+    spec:
+      containers:
+        - name: orderservice
+          image: saadchahi/orderservice:v1   
+          ports:
+            - containerPort: 8080       
+          env:
+            - name: ConnectionStrings__DefaultConnection
+              value: "Server=sqlserverdb;Database=OrderDb;User Id=sa;Password=sa@123456;TrustServerCertificate=True;"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderservice
+  namespace: microservices-app
+spec:
+  selector:
+    app: orderservice
+  ports:
+    - port: 5001
+      targetPort: 8080
+  type: LoadBalancer

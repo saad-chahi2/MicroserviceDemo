@@ -1,0 +1,15 @@
+# Tout ce qui n'est pas nécessaire au build de l'image : plus rapide, plus petit, pas de fuite.
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/*.user
+**/Dockerfile*
+**/.dockerignore
+.git/
+.github/
+.env
+docs/
+k8s/
+tests/
+*.md

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlserverdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqlserverdb
+  template:
+    metadata:
+      namespace: microservices-app
+      labels:
+        app: sqlserverdb
+    spec:
+      containers:
+        - name: sqlserverdb
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              value: "sa@123456"
+          volumeMounts:
+            - name: sql-data
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: sql-data
+          persistentVolumeClaim:
+            claimName: sqlserverdb-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlserverdb-pvc
+  namespace: microservices-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserverdb
+  namespace: microservices-app
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 1433
+      targetPort: 1433
+  selector:
+    app: sqlserverdb

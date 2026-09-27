@@ -11,12 +11,13 @@ L'utilisateur a déjà déployé ce projet sur K8s il y a ~1 an et a oublié la 
 
 | Élément | Détail |
 |---|---|
-| CustomerService | ASP.NET Core .NET 10, EF Core SQL Server, port **5002** |
-| OrderService | ASP.NET Core .NET 10, EF Core SQL Server, port **5001** |
-| Base de données | SQL Server 2022 (`mcr.microsoft.com/mssql/server:2022-latest`), port 1433, DB `MicroservicesDemo` |
+| CustomerService | `src/CustomerService` — ASP.NET Core .NET 10, EF Core, DB `CustomerDb`, conteneur :8080 → local **5002** |
+| OrderService | `src/OrderService` — ASP.NET Core .NET 10, EF Core, DB `OrderDb`, conteneur :8080 → local **5001** |
+| Base de données | SQL Server 2022 (`mcr.microsoft.com/mssql/server:2022-latest`), port 1433, 1 base par service |
 | Images | Docker Hub `saadchahi/customerservice`, `saadchahi/orderservice` |
-| Namespace K8s | `microservices-app` |
-| Local sans K8s | `docker compose up --build` |
+| Namespace K8s | `microservices-app` — manifests dans `k8s/` |
+| Local sans K8s | `docker compose up --build -d` (nécessite `.env`, copie de `.env.example`) |
+| Tests | `dotnet test --solution MicroservicesApp.slnx` (xUnit v3 sur Microsoft.Testing.Platform, NSubstitute) |
 | Déploiement actuel | `powershell -ExecutionPolicy Bypass -File .\deploy-all.ps1` (manuel) |
 | OS de dev | Windows 11, PowerShell |
 
@@ -37,8 +38,11 @@ L'utilisateur a déjà déployé ce projet sur K8s il y a ~1 an et a oublié la 
 - [02-KUBECTL-CHEATSHEET.md](docs/k8s/02-KUBECTL-CHEATSHEET.md) — commandes du quotidien + debug
 - [03-CICD.md](docs/k8s/03-CICD.md) — principes CI/CD, GitHub Actions, GitOps/Argo CD
 - [04-AUDIT-EXISTANT.md](docs/k8s/04-AUDIT-EXISTANT.md) — erreurs trouvées dans les manifests actuels
+- [05-STRUCTURE-DU-PROJET.md](docs/k8s/05-STRUCTURE-DU-PROJET.md) — rôle de chaque fichier, architecture, tests, Dockerfile
 
 ## Décisions
+
+- 2026-09-26 : refactoring « bonnes pratiques » (branche `feature/best-practices`) : src/ + tests/, Central Package Management, `nuget.config` limité à nuget.org (le PC a un feed privé d'entreprise qui répond 401), 1 base par service, port conteneur 8080, conteneur non-root.
 
 - 2026-09-26 : CI = GitHub Actions. Registry = Docker Hub (existant). CD recommandé = Argo CD (GitOps) car le cluster est local — *à confirmer par l'utilisateur*.
 - Cluster local : *à confirmer* (Docker Desktop Kubernetes probable, vu l'usage de `type: LoadBalancer`).

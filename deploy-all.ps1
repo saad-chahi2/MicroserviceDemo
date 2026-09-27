@@ -10,8 +10,8 @@ $namespace = "microservices-app"         # Namespace K8s
 
 Write-Host "=== 1. BUILD DES IMAGES DOCKER ==="
 
-docker build -t $dockerUser/customerservice:$tag  -f CustomerService/Dockerfile .
-docker build -t $dockerUser/orderservice:$tag  -f OrderService/Dockerfile .
+docker build -t $dockerUser/customerservice:$tag  -f src/CustomerService/Dockerfile .
+docker build -t $dockerUser/orderservice:$tag  -f src/OrderService/Dockerfile .
 
 Write-Host "=== 2. PUSH DES IMAGES SUR DOCKER HUB ==="
 
@@ -28,14 +28,14 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host "=== 4. DEPLOIEMENT SQL SERVER ==="
 
-kubectl apply -f ./sqlserver-deployment.yaml -n $namespace
+kubectl apply -f k8s/sqlserver-deployment.yaml -n $namespace
 
 Write-Host "=== 5. DEPLOIEMENT CUSTOMER SERVICE ==="
 
-kubectl apply -f CustomerService/K8s/customerservice-deployment.yaml -n $namespace
+kubectl apply -f k8s/customerservice.yaml -n $namespace
 
 Write-Host "=== 6. DEPLOIEMENT ORDER SERVICE ==="
 
-kubectl apply -f OrderService/K8s/orderservice-deployment.yaml -n $namespace
+kubectl apply -f k8s/orderservice.yaml -n $namespace
 
 Write-Host "=== DEPLOIEMENT TERMINE ==="
