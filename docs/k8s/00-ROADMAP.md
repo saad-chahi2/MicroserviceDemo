@@ -15,9 +15,10 @@ Cocher `[x]` au fur et à mesure. Chaque phase se termine par un **critère de r
 
 ## Phase 1 — Rappel Docker (la base de tout)
 
-- [ ] `docker compose up --build` → les 2 APIs répondent sur `http://localhost:5001/swagger` et `:5002/swagger`
+- [x] `docker compose up --build` → les 2 APIs répondent sur `http://localhost:5001/swagger` et `:5002/swagger`
 - [ ] Comprendre le Dockerfile multi-stage (stage `build` avec le SDK, stage final avec le runtime seul)
-- [ ] Ajouter un `.dockerignore` (bin/, obj/) — voir audit
+- [x] Ajouter un `.dockerignore` (bin/, obj/) — voir audit
+- [x] Code refactoré + tests unitaires — voir [05-STRUCTURE-DU-PROJET.md](05-STRUCTURE-DU-PROJET.md)
 
 ✅ Réussite : les images se construisent et tournent sans K8s.
 

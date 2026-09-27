@@ -1,5 +1,7 @@
 # 04 — Audit des fichiers K8s existants (2026-09-26)
 
+> Mise à jour après le refactoring : **corrigés** → #5, #10, #11, #13, #14. **À moitié** → #7 (endpoints `/health/live` et `/health/ready` existent, les probes restent à écrire dans les manifests). Les ports des manifests sont passés à 8080 et chaque service a sa base (`CustomerDb`, `OrderDb`). Les autres points restent des exercices de la Phase 3.
+
 Problèmes trouvés dans les manifests actuels. Excellent exercice : les corriger un par un en Phase 3.
 
 | # | Fichier | Problème | Pourquoi c'est un problème | Correction |

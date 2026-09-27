@@ -1,0 +1,24 @@
+@host = http://localhost:5001
+
+### Liste des commandes
+GET {{host}}/api/orders
+Accept: application/json
+
+### Commandes d'un client
+GET {{host}}/api/orders?customerId=1
+
+### Créer une commande
+POST {{host}}/api/orders
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "productName": "Clavier mécanique",
+  "quantity": 2
+}
+
+### Commande par id
+GET {{host}}/api/orders/1
+
+### Santé (readiness)
+GET {{host}}/health/ready

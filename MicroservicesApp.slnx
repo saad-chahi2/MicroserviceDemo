@@ -1,10 +1,22 @@
 <Solution>
   <Folder Name="/Solution Items/">
-    <File Path=".gitignore" />
-    <File Path="deploy-all.ps1" />
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path=".env.example" />
+    <File Path="CLAUDE.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
     <File Path="docker-compose.yml" />
-    <File Path="sqlserver-deployment.yaml" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
   </Folder>
-  <Project Path="CustomerService/CustomerService.csproj" />
-  <Project Path="OrderService/OrderService.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/CustomerService/CustomerService.csproj" />
+    <Project Path="src/OrderService/OrderService.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CustomerService.UnitTests/CustomerService.UnitTests.csproj" />
+    <Project Path="tests/OrderService.UnitTests/OrderService.UnitTests.csproj" />
+  </Folder>
 </Solution>

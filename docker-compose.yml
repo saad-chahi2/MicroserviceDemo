@@ -1,51 +1,52 @@
-version: '3.8'
+# Lancer tout l'environnement local :   docker compose up --build -d
+# Pré-requis : copier .env.example en .env (fournit MSSQL_SA_PASSWORD)
+name: microservices-demo
 
 services:
   sqlserverdb:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserverdb
     environment:
-      SA_PASSWORD: "sa@123456"
       ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Créer le fichier .env à partir de .env.example}
     ports:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
-    networks:
-      - microservices_network
+    # "healthy" seulement quand SQL Server accepte réellement des requêtes.
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   customerservice:
-    build: 
+    build:
       context: .
-      dockerfile: ./CustomerService/Dockerfile
-    container_name: customerservice
+      dockerfile: src/CustomerService/Dockerfile
+    image: saadchahi/customerservice:local
     ports:
-      - "5002:5002"
+      - "5002:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserverdb;Database=MicroservicesDemo;User Id=sa;Password=sa@123456;TrustServerCertificate=True;
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserverdb;Database=CustomerDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
     depends_on:
-      - sqlserverdb
-    networks:
-      - microservices_network
+      sqlserverdb:
+        condition: service_healthy
 
   orderservice:
-    build: 
+    build:
       context: .
-      dockerfile: ./OrderService/Dockerfile
-    container_name: orderservice
+      dockerfile: src/OrderService/Dockerfile
+    image: saadchahi/orderservice:local
     ports:
-      - "5001:5001"
+      - "5001:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserverdb;Database=MicroservicesDemo;User Id=sa;Password=sa@123456;TrustServerCertificate=True;
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserverdb;Database=OrderDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;"
     depends_on:
-      - sqlserverdb
-    networks:
-      - microservices_network
+      sqlserverdb:
+        condition: service_healthy
 
 volumes:
   sql_data:
-
-networks:
-  microservices_network:
