@@ -1,0 +1,83 @@
+# SQL Server : 1 disque persistant (PVC) + 1 Deployment + 1 Service interne.
+# Le mot de passe vient du Secret "mssql-secret", créé à la main (jamais commité) :
+#   kubectl create secret generic mssql-secret -n microservices-app --from-literal=MSSQL_SA_PASSWORD='Dev_Passw0rd!'
+
+# ---------- Disque : les données survivent si le pod est supprimé ----------
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sqlserverdb-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+# ---------- Le serveur SQL ----------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqlserverdb
+  labels:
+    app: sqlserverdb
+spec:
+  replicas: 1
+  # Recreate : arrêter l'ancien pod AVANT de lancer le nouveau (un seul pod peut utiliser le disque).
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: sqlserverdb
+  template:
+    metadata:
+      labels:
+        app: sqlserverdb
+    spec:
+      securityContext:
+        fsGroup: 10001            # l'utilisateur "mssql" de l'image doit pouvoir écrire sur le disque
+      containers:
+        - name: sqlserverdb
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secret
+                  key: MSSQL_SA_PASSWORD
+          resources:
+            requests:
+              memory: 2Gi
+              cpu: 500m
+            limits:
+              memory: 3Gi
+          # Prêt quand le port 1433 accepte des connexions.
+          readinessProbe:
+            tcpSocket:
+              port: 1433
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: sqlserverdb-data
+---
+# ---------- Nom réseau "sqlserverdb", visible UNIQUEMENT dans le cluster ----------
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqlserverdb
+spec:
+  type: ClusterIP
+  selector:
+    app: sqlserverdb
+  ports:
+    - port: 1433
+      targetPort: 1433

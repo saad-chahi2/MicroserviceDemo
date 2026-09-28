@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: orderservice
+  labels:
+    app: orderservice
 spec:
   replicas: 1
   selector:
@@ -9,29 +11,60 @@ spec:
       app: orderservice
   template:
     metadata:
-      namespace: microservices-app
       labels:
         app: orderservice
     spec:
       containers:
         - name: orderservice
-          image: saadchahi/orderservice:v1   
+          image: saadchahi/orderservice      # le tag est fixé dans kustomization.yaml
           ports:
-            - containerPort: 8080       
+            - containerPort: 8080
           env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development               # pour avoir Swagger (projet d'apprentissage)
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql-secret
+                  key: MSSQL_SA_PASSWORD
+            # $(DB_PASSWORD) est remplacé par Kubernetes avec la variable définie juste au-dessus.
             - name: ConnectionStrings__DefaultConnection
-              value: "Server=sqlserverdb;Database=OrderDb;User Id=sa;Password=sa@123456;TrustServerCertificate=True;"
-
+              value: "Server=sqlserverdb;Database=OrderDb;User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=True;"
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+          # Laisse jusqu'à 3 min au démarrage (attente de SQL Server + migrations).
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 36
+          # Bloqué ? → Kubernetes redémarre le conteneur.
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            periodSeconds: 10
+          # Base injoignable ? → plus de trafic envoyé à ce pod.
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: orderservice
-  namespace: microservices-app
 spec:
+  # Sur Docker Desktop, LoadBalancer expose le service sur http://localhost:5001
+  type: LoadBalancer
   selector:
     app: orderservice
   ports:
     - port: 5001
       targetPort: 8080
-  type: LoadBalancer

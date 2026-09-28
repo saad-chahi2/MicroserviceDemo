@@ -1,0 +1,25 @@
+# "Application" Argo CD : dit à Argo CD QUOI surveiller et OÙ le déployer.
+# À appliquer une seule fois :   kubectl apply -f argocd/application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservices-app
+  namespace: argocd                 # les Applications vivent dans le namespace d'Argo CD
+spec:
+  project: default
+
+  # SOURCE : où se trouve la vérité → le dossier k8s/ de la branche master sur GitHub
+  source:
+    repoURL: https://github.com/saad-chahi2/MicroserviceDemo.git
+    targetRevision: master
+    path: k8s                        # contient kustomization.yaml → Argo CD utilise Kustomize
+
+  # DESTINATION : le cluster où Argo CD est installé (lui-même), namespace de l'appli
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: microservices-app
+
+  syncPolicy:
+    automated:
+      prune: true      # une ressource supprimée de Git est supprimée du cluster
+      selfHeal: true   # une modification faite à la main dans le cluster est annulée (Git gagne)

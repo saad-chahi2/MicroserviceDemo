@@ -1,0 +1,22 @@
+# Point d'entrée Kustomize : liste ce qui compose l'application.
+# Déployer :   kubectl apply -k k8s/
+# Voir le YAML final (sans rien déployer) :   kubectl kustomize k8s/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Toutes les ressources ci-dessous seront créées dans ce namespace.
+namespace: microservices-app
+
+resources:
+  - namespace.yaml
+  - sqlserver.yaml
+  - customerservice.yaml
+  - orderservice.yaml
+
+# Version des images à déployer = SHA du commit (produit par la CI).
+# C'est CETTE ligne que la CI modifiera automatiquement, et qu'Argo CD surveillera.
+images:
+  - name: saadchahi/customerservice
+    newTag: 523a41a74198a6f206c65188cfc135c028ba9115
+  - name: saadchahi/orderservice
+    newTag: 523a41a74198a6f206c65188cfc135c028ba9115

@@ -6,8 +6,8 @@ Cocher `[x]` au fur et à mesure. Chaque phase se termine par un **critère de r
 
 ## Phase 0 — Environnement
 
-- [ ] Choisir le cluster local : **Docker Desktop → Settings → Kubernetes → Enable** (le plus simple sur Windows), ou `kind` / `minikube`
-- [ ] `kubectl version` et `kubectl get nodes` → 1 node `Ready`
+- [x] Choisir le cluster local : **Docker Desktop → Settings → Kubernetes → Enable** (le plus simple sur Windows), ou `kind` / `minikube`
+- [x] `kubectl version` et `kubectl get nodes` → 1 node `Ready`
 - [ ] `kubectl config get-contexts` → comprendre ce qu'est un *context* (quel cluster je pilote)
 - [ ] Installer : `helm`, (optionnel) **k9s** ou Lens pour visualiser
 
@@ -34,13 +34,14 @@ Cocher `[x]` au fur et à mesure. Chaque phase se termine par un **critère de r
 
 ## Phase 3 — Déployer le projet proprement
 
-- [ ] Corriger les problèmes de [04-AUDIT-EXISTANT.md](04-AUDIT-EXISTANT.md)
-- [ ] Secret pour le mot de passe SQL (`kubectl create secret generic ...`)
+- [x] Corriger les problèmes de [04-AUDIT-EXISTANT.md](04-AUDIT-EXISTANT.md) (manifests réécrits le 2026-09-28)
+- [x] Secret pour le mot de passe SQL (`kubectl create secret generic ...`) — ⚠️ sans apostrophes autour de la valeur
 - [ ] ConfigMap pour la config non sensible
-- [ ] PersistentVolumeClaim pour SQL Server → supprimer le pod SQL, les données restent
-- [ ] Probes `readinessProbe` / `livenessProbe` (endpoint `/health` à ajouter dans les APIs)
-- [ ] `resources.requests/limits` sur chaque conteneur
-- [ ] Réorganiser les YAML dans un dossier `k8s/` (voir structure cible ci-dessous)
+- [x] PersistentVolumeClaim pour SQL Server
+- [x] Probes `startupProbe` / `readinessProbe` / `livenessProbe` sur `/health/live` et `/health/ready`
+- [x] `resources.requests/limits` sur chaque conteneur
+- [x] Réorganiser les YAML dans un dossier `k8s/` + Kustomize (`kubectl apply -k k8s/`)
+- [x] Déployé à la main sur Docker Desktop : 3 pods `1/1`, Swagger OK sur localhost:5001/5002
 
 ✅ Réussite : `kubectl apply -k k8s/` déploie tout, les 3 pods sont `Running` et `READY 1/1`.
 
