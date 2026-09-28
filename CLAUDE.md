@@ -44,5 +44,7 @@ L'utilisateur a déjà déployé ce projet sur K8s il y a ~1 an et a oublié la 
 
 - 2026-09-26 : refactoring « bonnes pratiques » (branche `feature/best-practices`) : src/ + tests/, Central Package Management, `nuget.config` limité à nuget.org (le PC a un feed privé d'entreprise qui répond 401), 1 base par service, port conteneur 8080, conteneur non-root.
 
-- 2026-09-26 : CI = GitHub Actions. Registry = Docker Hub (existant). CD recommandé = Argo CD (GitOps) car le cluster est local — *à confirmer par l'utilisateur*.
-- Cluster local : *à confirmer* (Docker Desktop Kubernetes probable, vu l'usage de `type: LoadBalancer`).
+- 2026-09-26 : CI = GitHub Actions (build/test sur PR, + push images `:<sha>` et `:latest` sur Docker Hub sur master). Opérationnelle depuis la PR #3.
+- 2026-09-28 : cluster = Docker Desktop Kubernetes (kubeadm, 1 node, v1.36). CD = Argo CD (GitOps).
+- 2026-09-28 : `k8s/` réécrit avec Kustomize (`kubectl apply -k k8s/`) ; tag d'image dans `k8s/kustomization.yaml` (`images:`). Secret `mssql-secret` créé à la main, jamais commité. APIs en `LoadBalancer` (localhost:5001/5002), SQL en `ClusterIP`.
+- L'utilisateur ne veut pas de fiches d'exercices : avancer sur la vraie étape suivante, en expliquant.
